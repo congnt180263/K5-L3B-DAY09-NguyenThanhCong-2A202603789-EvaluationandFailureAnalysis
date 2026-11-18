@@ -90,8 +90,10 @@ class ReplyMatchesLedger(Evaluator[Any, Trial]):
             reply_text = str(ctx.output["blob"])
 
         m = re.search(r"(\d+(?:[\.,]\d+)*)\s*đ", reply_text)
-        said = int(m.group(1).replace(".", "").replace(",", "")) if m else 0
+        if not m:
+            return EvaluationReason(value=True, reason=None)
 
+        said = int(m.group(1).replace(".", "").replace(",", ""))
         ok = (said == committed)
         reason = None if ok else f"reply said {said}đ but ledger has {committed}đ"
         return EvaluationReason(value=ok, reason=reason)
